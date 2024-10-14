@@ -7,7 +7,6 @@ import rateLimit from "express-rate-limit";
 import mongodbSanitize from "mongodb-sanitize";
 import cookieParser from "cookie-parser";
 import path from "path";
-import { fileURLToPath } from "url";
 
 import connect from "./config/connect.js";
 import { UserRouter } from "./router/userRouter.js";
@@ -39,12 +38,10 @@ const PORT = process.env.PORT || 4000;
 
 app.use("/api/v1", UserRouter, FileUploadRouter);
 
-//image file get access
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use("/file", express.static(path.join(__dirname, "file")));
+app.use("/file", express.static(path.join("./file")));
 
 app.listen(PORT, () => {
+  //call database function from import config filesystem
   connect();
   console.log(`Server Running ${PORT}`);
 });

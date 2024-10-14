@@ -1,15 +1,10 @@
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 
 import FileUpload from "../model/fileUploadModel.js";
 import MulterFileUpload from "../utils/multer.js";
 
-// Get the current filename
-const __filename = fileURLToPath(import.meta.url);
-// Get the directory name of the current module
-const __dirname = path.dirname(__filename);
-
+//file upload controller
 export const fileUpload = async (req, res) => {
   try {
     //Extract the user ID from the request headers
@@ -21,13 +16,20 @@ export const fileUpload = async (req, res) => {
         return res.status(400).json({ message: "File Upload Failed" });
       }
 
+      // Check if a file was uploaded
+      const file = req.file;
+      if (!file) {
+        return res.status(404).json({
+          message: "File field is required",
+        });
+      }
+
       //file upload success, create a new document
       const update = await FileUpload.create({
         userId: id,
         file: req.file.filename,
       });
 
-      //file upload success message
       res.status(200).json({
         message: "File updated successfully",
         filePath: req.file.filename,
@@ -41,19 +43,22 @@ export const fileUpload = async (req, res) => {
   }
 };
 
+//file read controller
 export const fileRead = async (req, res) => {
   try {
     //Extract the user ID from the request headers
     const { id } = req.headers;
+
     // Define the base URL for accessing the images
     const baseURL = "http://localhost:4040/file";
+
     //find user images
     const fileFind = await FileUpload.find({ userId: id });
+
     //Query the database to find all images uploaded by the user
     const filesWithFullPath = fileFind.map(({ _id, userId, file }) => ({
       _id,
       userId,
-      // Construct the full file path using the base URL and the file name
       file: `${baseURL}/${file}`,
     }));
 
@@ -68,14 +73,18 @@ export const fileRead = async (req, res) => {
   }
 };
 
+//file delete controller
 export const fileDelete = async (req, res) => {
   try {
     //receive parameters file id
     const { id } = req.params;
+
     //Extract the user ID from the request headers
     const userId = req.headers.id;
+
     //Find the file in the database using its ID
     const fileFind = await FileUpload.findById(id);
+
     //file not found in the database
     if (!fileFind) {
       return res.status(404).json({
@@ -91,12 +100,12 @@ export const fileDelete = async (req, res) => {
     }
 
     // Construct the full file path for deletion
-    const filePath = path.join(__dirname, "..", "file", fileFind.file);
+    const filePath = path.join(process.cwd(), "./file", fileFind.file);
 
     // Delete the file from the filesystem
     fs.unlink(filePath, async (err) => {
       if (err) {
-        return res.status(500).json({
+        return res.status(404).json({
           message: "Error deleting file",
         });
       }

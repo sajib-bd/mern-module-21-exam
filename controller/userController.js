@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import validator from "validator";
 import TokenAndCookie from "../utils/TokenAndCookie.js";
 
+//signup controller
 export const SingUp = async (req, res) => {
   try {
     // Destructure the user input from the request body
@@ -70,6 +71,7 @@ export const SingUp = async (req, res) => {
   }
 };
 
+//Login Controller
 export const Login = async (req, res) => {
   try {
     // Destructure email and password from request body
@@ -79,7 +81,6 @@ export const Login = async (req, res) => {
     const alreadyLoginCheck = req.cookies.token;
     if (alreadyLoginCheck) {
       return res.status(400).json({
-        status: "login",
         message: "Already logged in",
       });
     }
@@ -129,6 +130,7 @@ export const Login = async (req, res) => {
   }
 };
 
+//find user controller
 export const userFind = async (req, res) => {
   try {
     // Extract user ID from request headers
@@ -152,6 +154,7 @@ export const userFind = async (req, res) => {
   }
 };
 
+//update controller
 export const Update = async (req, res) => {
   try {
     // Extract user ID from request headers
